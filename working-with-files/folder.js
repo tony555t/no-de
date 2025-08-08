@@ -14,13 +14,13 @@ fs.readdir(folderPath,(err,files)=>{
 })
 
 //create a folder
-const newFolderPath = path.join(__dirname,'files','new_folder')
+const newFolderPath = path.join(__dirname,'files','new01')
 fs.mkdir(newFolderPath,{recursive:true },(err)=>{
     if(err){
         console.log(err)
         return
     }
-    console.log('folder crested successfully')
+    console.log('folder created successfully')
 })
 //
 const newFolder = path.join(__dirname,'files','new_folder_renamed')
