@@ -3,7 +3,8 @@ const path = require('path')
 const { text } = require('stream/consumers')
 
 const textFilePath = path.join(__dirname, 'files','new.txt')
- fs.writeFile(textFilePath,content,(err)=>{
+const content = "this is a new file "
+ fs.writeFile(textFilePath, content, (err)=>{
     if (err){
         console.log(err)
     }
