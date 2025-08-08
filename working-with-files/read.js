@@ -14,4 +14,4 @@ fs.readFile(poemFilePath,'utf8',(err,data)=>{
 })
 //  read a file synchronously
 const poemData = fs.readFileSync(countriesFilePath,'utf8')
-// console.log(poemData)
+console.log(poemData)
