@@ -13,5 +13,3 @@ module.exports = {
     sub
 };
 
-// Or using shorthand:
-// module.exports = { add, sub };
