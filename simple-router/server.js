@@ -1,24 +1,24 @@
 const http = require('http');
-   const { authors,book}= require('./fixtures');
+const { authors,book}= require('./fixture');
 const { books } = require('./fixture');
    const PORT = 4000
    const HOST_NAME="localhost";
 
-   const requestHandler (req,res){
+   const requestHandler = function (req,res){
     res.setHeader("Content-Type", "application/json");
     console.log(req.url)
     console.log(req.method)
     
     switch(req.url){
         case '/books':
-             res.end(json.stringify(books));
+             res.end(JSON.stringify(books));
              break;
         case'/authour':
-            res.end(json.stringify(authors));
+            res.end(JSON.stringify(authors));
             break;
             default:
                 res.writeHead(404);
-                res.end(json.stringify({
+                res.end(JSON.stringify({
                     message:'not found'
                 }))
     }
