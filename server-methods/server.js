@@ -29,4 +29,14 @@ const requestHandler = function(req,res){
     }
 }
 
+// retreiving all books
+const getAllBooks = function(req, res){
+    fs.readFile(booksDbpath,"utf8",(err,books)=>{
+        if(err){
+            console.log(err)
+            res.writeHeader(400)
+            res.end("an error occured")
+        }
+    })
+}
 
