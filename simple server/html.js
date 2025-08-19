@@ -1,24 +1,31 @@
-const { write } = require("fs");
-const http = require("http");
-// const { request } = require("https");
-const HOSTNAME ="localhost"
-const PORT = 3000
+const http = require('http');
+const { authors, books } = require('./fixtures');
 
-function requestHandler(req,res){
-    console.log(req)
+const PORT = 4000;
+const HOST_NAME = 'localhost';
 
-    res.statusHeader(200,{'Content-Type':'text/plain',
-                          'Acces-content-Allow-Origin':"*"
-
-    })
-    res.write( "this was made from the scrtch\n");
-    res.write ("sending greetings\n");
-    res.end("hello from the server\n")
+const requestHandler = function (req, res) {  
+    res.setHeader("Content-Type", "application/json");
+    console.log(req.url);
+    console.log(req.method);
+    
+    switch(req.url) {
+        case '/books': 
+            res.end(JSON.stringify(books));
+            break;
+        case '/authors':
+            res.end(JSON.stringify(authors));
+            break;
+        default:
+            res.writeHead(404);
+            res.end(JSON.stringify({
+                message: 'Not Found'
+            }));
+    }
 }
-const server = http.createServer(requestHandler)
-server.listen(PORT, HOSTNAME, () => {
-    console.log(`server started succefully at http://${HOSTNAME}:${PORT}`)
-})
-    'Content-Type': 'text/plain',
-        'Access-Control-Allow-Origin': '*'
-    });
+
+const server = http.createServer(requestHandler);
+
+server.listen(PORT, HOST_NAME, () => {
+    console.log(`Server is listening on ${HOST_NAME}:${PORT}`);
+});
