@@ -40,3 +40,37 @@ const getAllBooks = function(req, res){
     })
 }
 
+// create  a book 
+const addBook=function(req, res){
+    const body = [];
+    req.on ('data',(chunk)=>{
+        body.push(chunk);
+    }
+        
+    );
+    req.on('end',()=>{
+        const parsedBody = Buffer.concat(body).toString();
+        const newBook = JSON.parse(parseBody);
+
+        //get id of the last book
+        const lastBook = booksDB[booksDB.length -1];
+        const  lastBookId = lastBook.id;
+        newBook.id = lastBookId +1;
+
+        // save to the db
+
+        booksDB.push(newBook);
+        fs.writeFile(booksDbpath, JSON.stringify(booksDB),(err)=>{
+            if(err){
+                console.log(err);
+                res.writeHeader(500);
+                res.end(JSON.stringify({
+                    message:'internal server error'
+                }));
+            }
+
+            res.end(JSON.stringify(newBook));
+        })
+    })
+}
+
