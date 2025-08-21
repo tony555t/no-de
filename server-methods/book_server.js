@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { buffer } = require('stream/consumers');
 
 const booksDbPath = path.join(__dirname, 'db', 'books.json');
 
@@ -118,9 +119,43 @@ function updateBook(req, res) {
     });
 }
 
+// delete books
 function deleteBook(req, res) {
-    res.writeHead(200);
-    res.end("Delete book endpoint");
+    const body = [];
+    req.on("data", (chunk) => body.push(chunk));
+
+    req.on("end", () => {
+        const parsedBody = Buffer.concat(body).toString();
+        const { id } = JSON.parse(parsedBody);
+
+        fs.readFile(booksDbPath, "utf8", (err, data) => {
+            if (err) {
+                res.writeHead(500);
+                res.end("Error reading database");
+                return;
+            }
+
+            let books = JSON.parse(data);
+            const filteredBooks = books.filter(book => book.id !== id);
+
+            if (books.length === filteredBooks.length) {
+                res.writeHead(404);
+                res.end("Book not found");
+                return;
+            }
+
+            fs.writeFile(booksDbPath, JSON.stringify(filteredBooks, null, 2), (err) => {
+                if (err) {
+                    res.writeHead(500);
+                    res.end("Error deleting book");
+                    return;
+                }
+
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Book deleted' }));
+            });
+        });
+    });
 }
 
 const server = http.createServer(requestHandler);
