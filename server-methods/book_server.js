@@ -68,10 +68,54 @@ function addBook(req, res) {
         });
     });
 }
+// updating books
 
 function updateBook(req, res) {
-    res.writeHead(200);
-    res.end("Update book endpoint");
+    const body = [];
+    req.on("data", (chunk) => {
+        body.push(chunk);
+    });
+
+    req.on("end", () => {
+        try {
+            const parsedBody = Buffer.concat(body).toString();
+            const updatedBook = JSON.parse(parsedBody);
+
+            fs.readFile(booksDbPath, "utf8", (err, data) => {
+                if (err) {
+                    res.writeHead(500);
+                    res.end("Error reading database");
+                    return;
+                }
+
+                const books = JSON.parse(data);
+                const bookIndex = books.findIndex(book => book.id === updatedBook.id);
+
+                if (bookIndex === -1) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: "Book not found" }));
+                    return;
+                }
+
+                // Update the book
+                books[bookIndex] = updatedBook;
+
+                fs.writeFile(booksDbPath, JSON.stringify(books, null, 2), (err) => {
+                    if (err) {
+                        res.writeHead(500);
+                        res.end("Error saving updated book");
+                        return;
+                    }
+
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(updatedBook));
+                });
+            });
+        } catch (error) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: "Invalid JSON" }));
+        }
+    });
 }
 
 function deleteBook(req, res) {
