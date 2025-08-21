@@ -31,3 +31,11 @@ const http = require ('http');
         res.end(data)
     })
  }
+
+ function addBook(req,res){
+    const body =[]
+
+    req.on("data",(chunk)=>{
+        body.push(chunk)
+    })
+ }
