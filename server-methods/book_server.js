@@ -1,41 +1,86 @@
-const http = require ('http');
- const fs = require ('fs');
- const path = require('path');
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
+const booksDbPath = path.join(__dirname, 'db', 'books.json');
 
- const booksDbpath = path.join(__dirname,"db",'books.json');
+const PORT = 4000;
+const HOST_NAME = 'localhost';
 
- const PORT =4000 ;
- const HOST_NAME = 'localhost';
-
- function requestHandler (req,res){
-    if (req.url === '/books'&& req.method === "GET"){
-        // READ THE LOAD AND RETURN BOOKS
-        getAllBooks(req,res)
-
-    }else if(req.url === '/books'&& req.method ==="post"){
-        addBook(req,res)
-    }else if (req.url === '/books'&& req.method === "PUT"){
-        updateBook(req,res)
-    }else if (req.url === '/books' && req.method === "DELETE"){
-        deleteBook(req,res)
+function requestHandler(req, res) {
+    if (req.url === '/books' && req.method === "GET") {
+        getAllBooks(req, res);
+    } else if (req.url === '/books' && req.method === "POST") {
+        addBook(req, res);
+    } else if (req.url === '/books' && req.method === "PUT") {
+        updateBook(req, res);
+    } else if (req.url === '/books' && req.method === "DELETE") {
+        deleteBook(req, res);
+    } else {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Not Found');
     }
- }
- function getAllBooks(req,res){
-    fs.readFile(booksDbpath,"utf8",(err,data)=>{
-        if (err){
-            console.log(err)
-            res.writeHead(400)
-            res.end("an error occcured")
+}
+
+function getAllBooks(req, res) {
+    fs.readFile(booksDbPath, "utf8", (err, data) => {
+        if (err) {
+            console.error(err);
+            res.writeHead(500);
+            res.end("An error occurred");
+            return;
         }
-        res.end(data)
-    })
- }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(data);
+    });
+}
 
- function addBook(req,res){
-    const body =[]
+function addBook(req, res) {
+    const body = [];
+    req.on("data", (chunk) => {
+        body.push(chunk);
+    });
 
-    req.on("data",(chunk)=>{
-        body.push(chunk)
-    })
- }
+    req.on("end", () => {
+        const parsedBody = Buffer.concat(body).toString();
+        const newBook = JSON.parse(parsedBody);
+
+        fs.readFile(booksDbPath, "utf8", (err, data) => {
+            if (err) {
+                res.writeHead(500);
+                res.end("Error reading database");
+                return;
+            }
+
+            const books = JSON.parse(data);
+            books.push(newBook);
+
+            fs.writeFile(booksDbPath, JSON.stringify(books, null, 2), (err) => {
+                if (err) {
+                    res.writeHead(500);
+                    res.end("Error saving book");
+                    return;
+                }
+
+                res.writeHead(201, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify(newBook));
+            });
+        });
+    });
+}
+
+function updateBook(req, res) {
+    res.writeHead(200);
+    res.end("Update book endpoint");
+}
+
+function deleteBook(req, res) {
+    res.writeHead(200);
+    res.end("Delete book endpoint");
+}
+
+const server = http.createServer(requestHandler);
+
+server.listen(PORT, HOST_NAME, () => {
+    console.log(`Server running at http://${HOST_NAME}:${PORT}`);
+});
