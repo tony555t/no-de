@@ -13,9 +13,9 @@ const { books } = require('./fixture');
         case '/books':
              res.end(JSON.stringify(books));
              break;
-        case'/authour':
+        case'/authors':
             res.end(JSON.stringify(authors));
-            break;
+            break
             default:
                 res.writeHead(404);
                 res.end(JSON.stringify({
